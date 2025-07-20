@@ -38,6 +38,11 @@ public class PatternService {
         return patternRepository.existsById(id);
     }
 
+    public boolean patternExists(String patternName) {
+        return patternRepository.findAll().stream()
+                .anyMatch(pattern -> pattern.getPatternName().equalsIgnoreCase(patternName));
+    }
+
     public void deleteAllPatterns() {
         patternRepository.deleteAll();
     }

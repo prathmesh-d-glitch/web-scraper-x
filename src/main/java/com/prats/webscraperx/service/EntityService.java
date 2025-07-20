@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
@@ -68,7 +67,7 @@ public class EntityService {
         entityRepository.deleteAll();
     }
 
-    private List<Entity> getByUrl(String url) {
+    public List<Entity> getByUrl(String url) {
         return entityRepository.findByBasePath(url);
     }
 
@@ -107,7 +106,7 @@ public class EntityService {
         return null;
     }
 
-    public String downloadAttachment(UUID fileId, String fileName, String downloadPath) throws IOException {
+    public String downloadAttachment(Long fileId, String fileName, String downloadPath) throws IOException {
         File file = new File(storageDir + fileId + "_" + fileName);
         File dest = new File(downloadPath + fileName);
 
@@ -119,7 +118,7 @@ public class EntityService {
         return "File downloaded to: " + downloadPath + fileName;
     }
 
-    public InputStream showAttachment(UUID fileId, String fileName) throws IOException {
+    public InputStream showAttachment(Long fileId, String fileName) throws IOException {
         File file = new File(storageDir + fileId + "_" + fileName);
         return new FileInputStream(file);
     }
