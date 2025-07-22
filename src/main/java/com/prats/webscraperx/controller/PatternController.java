@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/webscraperx/api/pattern")
@@ -34,7 +35,7 @@ public class PatternController {
         }
     }
 
-    @PutMapping("/updatePattern/{id")
+    @PutMapping("/updatePattern/{id}")
     public String updatePattern(@PathVariable("id") Long id, @RequestBody Pattern pattern) {
         if (patternService.patternExists(id)) {
             pattern.setId(id);
