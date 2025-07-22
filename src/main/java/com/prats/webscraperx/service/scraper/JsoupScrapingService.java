@@ -22,44 +22,50 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
 public class JsoupScrapingService {
 
-    private final int timeout;
+    private final int timeout = 0;
 
     private EntityService entityService;
     private PatternService patternService;
+    private Pattern pattern;
+    private String patternName;
 
     private JSONObject httpResponse = new JSONObject();
     private int scrapeCount = 0;
 
-    @Autowired
-    public JsoupScrapingService(EntityService entityService, PatternService patternService) {
-        this.timeout = 15000; // Default timeout of 15 seconds
+
+    public JsoupScrapingService(String patternName, EntityService entityService, PatternService patternService) {
+        this.patternName = patternName;
         this.entityService = entityService;
         this.patternService = patternService;
     }
 
-    public JsoupScrapingService(int timeout, EntityService entityService, PatternService patternService) {
-        this.timeout = timeout;
+    public JsoupScrapingService(Pattern pattern, EntityService entityService, PatternService patternService) {
+        this.pattern = pattern;
         this.entityService = entityService;
         this.patternService = patternService;
     }
 
-    public String startScraping(String patternName, Pattern pattern) throws Exception {
-        return scan(patternName);
+    public String startScraping() throws Exception {
+        return scan();
     }
 
-    private String scan(String patternName) throws Exception {
+    private String scan() throws Exception {
 
-        Optional<Pattern> oPattern = patternService.getPatternByName(patternName);
-        if(oPattern.isEmpty()) {
-            httpResponse.put("patternFound", "false");
-            throw new Exception("Pattern not found: " + patternName);
+        if(this.pattern == null) {
+            Optional<Pattern> oPattern = patternService.getPatternByName(patternName);
+            if(oPattern.isEmpty()) {
+                httpResponse.put("patternFound", "false");
+                throw new Exception("Pattern not found: " + patternName);
+            }
+
+            pattern = oPattern.get();
+            httpResponse.put("patternFound", "true");
         }
-
-        Pattern pattern = oPattern.get();
-        httpResponse.put("patternFound", "true");
+        else {
+            patternService.createPattern(pattern);
+        }
 
         try {
             Document doc = Jsoup.connect(pattern.getUrl()).timeout(timeout).get();
@@ -71,7 +77,7 @@ public class JsoupScrapingService {
                 for (Element pagination : prescraping) {
                     if (page == 1) {
                         Elements firstPage = doc.select(pattern.getTagForBody());
-                        paginationScrape(firstPage, pattern);
+                        paginationScrape(firstPage);
                     }
                     else {
                         try {
@@ -79,7 +85,7 @@ public class JsoupScrapingService {
                             String resolved = resolveUrl(pattern.getUrl(), href);
                             Document paginatedDoc = Jsoup.connect(resolved).timeout(timeout).get();
                             httpResponse.put("paginationStatus", "success");
-                            paginationScrape(paginatedDoc.select(pattern.getTagForBody()), pattern);
+                            paginationScrape(paginatedDoc.select(pattern.getTagForBody()));
                         }
                         catch (Exception e) {
                             httpResponse.put("paginationStatus", "failed");
@@ -91,7 +97,7 @@ public class JsoupScrapingService {
             }
             else {
                 Elements bodyElements = doc.select(pattern.getTagForBody());
-                paginationScrape(bodyElements,pattern);
+                paginationScrape(bodyElements);
             }
         }
         catch (Exception e) {
@@ -105,7 +111,7 @@ public class JsoupScrapingService {
     }
 
     // Outer page Scrape
-    private void paginationScrape(Elements bodyElements, Pattern pattern) throws Exception {
+    private void paginationScrape(Elements bodyElements) throws Exception {
         // Determine the base URL to resolve relative links
         String baseUrl = extractBaseUrl(pattern.getUrl());
 
@@ -201,7 +207,7 @@ public class JsoupScrapingService {
                         :resolveUrl(baseUrl,path);
                 try {
                     Document doc=Jsoup.connect(targetUrl).timeout(timeout).get();
-                    innerScrape(doc.select(pattern.getTagForInnerBody()),entity,pattern);
+                    innerScrape(doc.select(pattern.getTagForInnerBody()),entity);
                 }
                 catch(Exception e){
                     System.err.println("Error during inner scrape: "+e.getMessage());
@@ -214,7 +220,7 @@ public class JsoupScrapingService {
         }
     }
 
-    private void innerScrape(Elements pagintion, Entity entity, Pattern pattern) throws Exception {
+    private void innerScrape(Elements pagintion, Entity entity) {
 
         for(Element element:pagintion){
 
