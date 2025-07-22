@@ -13,7 +13,7 @@ public class Pattern {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private Long id;
 
     @Column(unique = true)
     private String patternName;
@@ -49,11 +49,11 @@ public class Pattern {
     @JoinColumn(name = "inner_attachment_id")
     private List<AttachmentObject> attachmentInnerObject = new ArrayList<>();
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
