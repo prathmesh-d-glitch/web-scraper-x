@@ -1,8 +1,10 @@
 package com.prats.webscraperx.controller;
 
 import com.prats.webscraperx.model.Entity;
+import com.prats.webscraperx.model.Pattern;
 import com.prats.webscraperx.service.EntityService;
 import com.prats.webscraperx.service.PatternService;
+import com.prats.webscraperx.service.scraper.JsoupScrapingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,13 +36,31 @@ public class EntityController {
         return entityService.getByUrl(url);
     }
 
-//    @PostMapping("/scrapeByPattern")
-//    public List<Entity> scrapeByPattern(String url, String pattern) {
-//    }
+    @PostMapping("/scrapeByPattern")
+    public String scrapeByPattern(String pattern) {
+        JsoupScrapingService jsoupScrapingService = new JsoupScrapingService(pattern, entityService, patternService);
+        try {
+            jsoupScrapingService.startScraping();
+            return "Scraping completed successfully.";
+        } catch (IOException e) {
+            return "Error during scraping: " + e.getMessage();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-//    @PostMapping("/scrapeByNewPattern")
-//    public String scrapeByNewPattern(String url, String pattern) {
-//    }
+    @PostMapping("/scrapeByNewPattern")
+    public String scrapeByNewPattern(Pattern pattern) {
+        JsoupScrapingService jsoupScrapingService = new JsoupScrapingService(pattern, entityService, patternService);
+        try {
+            jsoupScrapingService.startScraping();
+            return "Scraping completed successfully.";
+        } catch (IOException e) {
+            return "Error during scraping: " + e.getMessage();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @DeleteMapping("/deleteEntity/{id}")
     public String deleteEntity(@PathVariable("id") Long id) {
