@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 
 import java.util.*;
 
-@Entity
+@jakarta.persistence.Entity
 @Table(name = "entities")
 public class Entity {
 
@@ -110,5 +110,11 @@ public class Entity {
 
     public void setAttachmentId(UUID attachmentId) {
         this.attachmentIds.add(attachmentId);
+    }
+
+    public void addAttachmentId(UUID uuid) {
+        if (uuid != null && !this.attachmentIds.contains(uuid)) {
+            this.attachmentIds.add(uuid);
+        }
     }
 }

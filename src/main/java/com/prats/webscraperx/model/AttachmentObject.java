@@ -16,4 +16,28 @@ public class AttachmentObject {
 
     @Column(nullable = false)
     private String attrForElementToScrape;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTagForElementToScrape() {
+        return tagForElementToScrape;
+    }
+
+    public void setTagForElementToScrape(String tagForElementToScrape) {
+        this.tagForElementToScrape = tagForElementToScrape;
+    }
+
+    public String getAttrForElementToScrape() {
+        return attrForElementToScrape;
+    }
+
+    public void setAttrForElementToScrape(String attrForElementToScrape) {
+        this.attrForElementToScrape = attrForElementToScrape;
+    }
 }

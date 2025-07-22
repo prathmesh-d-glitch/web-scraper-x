@@ -23,4 +23,44 @@ public class PatternObject {
 
     @Column(nullable = true)
     private String attrForElementToScrape;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getElementToScrape() {
+        return elementToScrape;
+    }
+
+    public void setElementToScrape(String elementToScrape) {
+        this.elementToScrape = elementToScrape;
+    }
+
+    public String getTagForElementToScrape() {
+        return tagForElementToScrape;
+    }
+
+    public void setTagForElementToScrape(String tagForElementToScrape) {
+        this.tagForElementToScrape = tagForElementToScrape;
+    }
+
+    public Boolean getMethodForElementToScrape() {
+        return methodForElementToScrape;
+    }
+
+    public void setMethodForElementToScrape(Boolean methodForElementToScrape) {
+        this.methodForElementToScrape = methodForElementToScrape;
+    }
+
+    public String getAttrForElementToScrape() {
+        return attrForElementToScrape;
+    }
+
+    public void setAttrForElementToScrape(String attrForElementToScrape) {
+        this.attrForElementToScrape = attrForElementToScrape;
+    }
 }
