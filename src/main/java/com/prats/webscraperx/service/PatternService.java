@@ -22,6 +22,12 @@ public class PatternService {
         return patternRepository.findById(id);
     }
 
+    public Optional<Pattern> getPatternByName(String patternName) {
+        return patternRepository.findAll().stream()
+                .filter(pattern -> pattern.getPatternName().equalsIgnoreCase(patternName))
+                .findFirst();
+    }
+
     public Pattern createPattern(Pattern pattern) {
         return patternRepository.save(pattern);
     }
