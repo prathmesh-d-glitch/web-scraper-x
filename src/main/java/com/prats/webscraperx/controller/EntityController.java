@@ -37,7 +37,7 @@ public class EntityController {
     }
 
     @PostMapping("/scrapeByPattern")
-    public String scrapeByPattern(String pattern) {
+    public String scrapeByPattern(@RequestBody String pattern) {
         JsoupScrapingService jsoupScrapingService = new JsoupScrapingService(pattern, entityService, patternService);
         try {
             jsoupScrapingService.startScraping();
@@ -50,7 +50,7 @@ public class EntityController {
     }
 
     @PostMapping("/scrapeByNewPattern")
-    public String scrapeByNewPattern(Pattern pattern) {
+    public String scrapeByNewPattern(@RequestBody Pattern pattern) {
         JsoupScrapingService jsoupScrapingService = new JsoupScrapingService(pattern, entityService, patternService);
         try {
             jsoupScrapingService.startScraping();
