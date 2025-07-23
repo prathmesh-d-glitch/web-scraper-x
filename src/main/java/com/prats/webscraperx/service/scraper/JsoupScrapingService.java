@@ -11,9 +11,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jackson.JsonObjectDeserializer;
-import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.time.Instant;
@@ -22,16 +19,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+// for scraping static pages using Jsoup
 public class JsoupScrapingService {
 
-    private final int timeout = 0;
+    private final int timeout = 0;  // waits infinitely for the connection to be established
 
     private EntityService entityService;
     private PatternService patternService;
     private Pattern pattern;
     private String patternName;
 
-    private JSONObject httpResponse = new JSONObject();
+    private JSONObject httpResponse = new JSONObject(); // to store the response of the scraping process
     private int scrapeCount = 0;
 
 
@@ -53,7 +51,7 @@ public class JsoupScrapingService {
 
     private String scan() throws Exception {
 
-        if(this.pattern == null) {
+        if(this.pattern == null) {// if pattern is not provided, fetch it by name
             Optional<Pattern> oPattern = patternService.getPatternByName(patternName);
             if(oPattern.isEmpty()) {
                 httpResponse.put("patternFound", "false");
@@ -63,14 +61,16 @@ public class JsoupScrapingService {
             pattern = oPattern.get();
             httpResponse.put("patternFound", "true");
         }
-        else {
+        else {// if pattern is provided, check if it exists in the database
             patternService.createPattern(pattern);
         }
 
-        try {
+        try {// Attempt to connect to the URL specified in the pattern
             Document doc = Jsoup.connect(pattern.getUrl()).timeout(timeout).get();
             httpResponse.put("mainConnectionStatus", "success");
 
+
+            // Check if the pattern has a pre-scraping step
             if (pattern.getHasPrescraping()) {
                 Elements prescraping = doc.select(pattern.getTagForPrescraping());
                 int page = 1;;
@@ -224,6 +224,7 @@ public class JsoupScrapingService {
 
         for(Element element:pagintion){
 
+            // Extract the base path for the entity
             List<PatternObject> patternObjects = pattern.getInnerPatternObjects();
             if(patternObjects != null && !patternObjects.isEmpty()) {
                 for(PatternObject patternObject:patternObjects) {
@@ -246,6 +247,7 @@ public class JsoupScrapingService {
                 }
             }
 
+            // Extract attachments from the inner page
             if(pattern.getHasInnerAttachments() && !pattern.getAttachmentInnerObject().isEmpty()) {
                 for(AttachmentObject attachmentObject:pattern.getAttachmentInnerObject()) {
                     try {
@@ -271,6 +273,7 @@ public class JsoupScrapingService {
     }
 
 
+    // Helper methods to extract base URL and resolve relative links
     private String extractBaseUrl(String url) {
         if(url == null || url.isBlank()) {
             return "";
@@ -294,6 +297,7 @@ public class JsoupScrapingService {
         }
     }
 
+    // Method to resolve relative URLs based on the base URL
     private String resolveUrl(String baseUrl, String link) {
         if(link == null || link.isBlank()) {
             return baseUrl;
@@ -307,6 +311,7 @@ public class JsoupScrapingService {
         return baseUrl + link;
     }
 
+    // Helper method to safely trim and return a string, avoiding null values
     private String safe(String s) {
         return s == null ? "" : s.trim();
     }
