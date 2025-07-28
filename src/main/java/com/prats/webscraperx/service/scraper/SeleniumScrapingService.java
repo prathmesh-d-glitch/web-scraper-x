@@ -8,12 +8,17 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +64,20 @@ public class SeleniumScrapingService {
                         WebDriverWait waitForElement = new WebDriverWait(driver, Duration.ofSeconds(step.getInt("timeout")));
                         waitForElement.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(step.getString("selector"))));
                         break;
+                    case "waitForText":
+                        WebElement elementWithText = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(step.getString("selector"))));
+                        wait.until(ExpectedConditions.textToBePresentInElement(elementWithText, step.getString("text")));
+                        break;
+                    case "hover":
+                        WebElement hoverElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(step.getString("selector"))));
+                        new Actions(driver).moveToElement(hoverElement).perform();
+                        break;
+                    case "screenshot":
+                        takeScreenshot(step.getString("filePath"));
+                        break;
+                    case "scroll":
+                        handleScroll(step);
+                        break;
                     case "scrape":
                         Thread.sleep(5000);
                         handleScraping(step.getJSONObject("target"));
@@ -72,6 +91,33 @@ public class SeleniumScrapingService {
             catch (Exception e) {
                 System.err.println("Error executing action: " + action + " - " + e.getMessage());
             }
+        }
+    }
+
+    private void takeScreenshot(String filePath) throws IOException {
+        File srcFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        Path destination = Paths.get(filePath);
+        Files.createDirectories(destination.getParent());
+        Files.copy(srcFile.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
+        System.out.println("Screenshot saved to: " + filePath);
+    }
+
+    private void handleScroll(JSONObject step) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        String type = step.optString("type", "bottom");
+
+        switch (type) {
+            case "toElement":
+                WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(step.getString("selector"))));
+                js.executeScript("arguments[0].scrollIntoView(true);", element);
+                break;
+            case "byAmount":
+                js.executeScript("window.scrollBy(0," + step.getInt("amount") + ")");
+                break;
+            case "bottom":
+            default:
+                js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+                break;
         }
     }
 
