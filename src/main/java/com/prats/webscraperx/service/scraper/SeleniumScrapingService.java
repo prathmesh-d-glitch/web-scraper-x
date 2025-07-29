@@ -103,6 +103,40 @@ public class SeleniumScrapingService {
     }
 
     private void handleScroll(JSONObject step) {
+
+
+        //Alternative scroll handling using Actions class testing
+//        Actions actions = new Actions(driver);
+//        String type = step.optString("type", "bottom");
+//
+//        switch (type) {
+//            case "toElement":
+//                WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(step.getString("selector"))));
+//                actions.moveToElement(element).perform();
+//                break;
+//
+//            case "byAmount":
+//                int amount = step.getInt("amount");
+//                // Scroll down by pressing Page Down key multiple times if amount is large
+//                int scrolls = Math.abs(amount) / 100;
+//                for (int i = 0; i < scrolls; i++) {
+//                    if (amount > 0) {
+//                        actions.sendKeys(Keys.PAGE_DOWN).perform();
+//                    } else {
+//                        actions.sendKeys(Keys.PAGE_UP).perform();
+//                    }
+//                }
+//                break;
+//
+//            case "bottom":
+//            default:
+//                // Scroll to bottom using Ctrl + End
+//                actions.keyDown(Keys.CONTROL).sendKeys(Keys.END).keyUp(Keys.CONTROL).perform();
+//                break;
+//        }
+
+
+
         JavascriptExecutor js = (JavascriptExecutor) driver;
         String type = step.optString("type", "bottom");
 
